@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Philippine Bar Dictionary</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 1%;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 12px 1%;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin-bottom: 1%;
+            border-left: 4px solid #d4af37;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            color: #d4af37;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .subtitle {
+            font-size: 0.7rem;
+            color: #a0a0a0;
+            margin-top: 3px;
+        }
+
+        .search-box {
+            margin-bottom: 1%;
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            font-size: 0.9rem;
+            border: 2px solid #0f3460;
+            border-radius: 6px;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #d4af37;
+            font-size: 1.1rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1%;
+            margin-bottom: 1%;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .filter-tabs::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .filter-tabs::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 3px;
+        }
+
+        .tab {
+            padding: 8px 14px;
+            background: #0f3460;
+            border: 1px solid #16213e;
+            border-radius: 5px;
+            color: #e0e0e0;
+            font-size: 0.75rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: #d4af37;
+            color: #1a1a2e;
+            font-weight: 600;
+        }
+
+        .dictionary-list {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 1%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .term-item {
+            background: #1a1a2e;
+            padding: 12px 1%;
+            margin-bottom: 1%;
+            border-radius: 6px;
+            border-left: 3px solid #d4af37;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .term-item:hover {
+            background: #0f3460;
+            transform: translateX(3px);
+        }
+
+        .term-title {
+            font-size: 0.95rem;
+            color: #d4af37;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .term-category {
+            font-size: 0.65rem;
+            color: #7aa0c4;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .term-definition {
+            font-size: 0.8rem;
+            color: #c0c0c0;
+            line-height: 1.5;
+            display: none;
+        }
+
+        .term-item.expanded .term-definition {
+            display: block;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #0f3460;
+        }
+
+        .term-source {
+            font-size: 0.7rem;
+            color: #808080;
+            font-style: italic;
+            margin-top: 6px;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 30px;
+            color: #808080;
+            font-size: 0.9rem;
+        }
+
+        .stats {
+            text-align: center;
+            margin-top: 1%;
+            padding: 10px;
+            font-size: 0.7rem;
+            color: #808080;
+        }
+
+        .expand-icon {
+            float: right;
+            color: #d4af37;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Philippine Bar Dictionary 2026</h1>
+            <div class="subtitle">Legal Terms & Definitions</div>
+        </header>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search legal terms...">
+            <span class="search-icon">🔍</span>
+        </div>
+
+        <div class="filter-tabs">
+            <div class="tab active" data-category="all">All</div>
+            <div class="tab" data-category="Civil Law">Civil Law</div>
+            <div class="tab" data-category="Criminal Law">Criminal Law</div>
+            <div class="tab" data-category="Remedial Law">Remedial Law</div>
+            <div class="tab" data-category="Legal Ethics">Legal Ethics</div>
+            <div class="tab" data-category="Constitutional Law">Constitutional Law</div>
+        </div>
+
+        <div class="dictionary-list" id="dictionaryList"></div>
+
+        <div class="stats" id="stats"></div>
+    </div>
+
+    <script>
+        const legalTerms = [
+            {
+                term: "Actus Reus",
+                category: "Criminal Law",
+                definition: "The physical act or conduct that comprises the criminal act. It is one of the two essential elements of a crime, the other being mens rea (guilty mind). The actus reus must be a voluntary act that causes harm.",
+                source: "Revised Penal Code"
+            },
+            {
+                term: "Accessory After the Fact",
+                category: "Criminal Law",
+                definition: "A person who, with knowledge that a crime has been committed, assists the criminal to escape punishment by concealing evidence, harboring the offender, or otherwise obstructing justice.",
+                source: "Art. 19, Revised Penal Code"
+            },
+            {
+                term: "Affidavit of Desistance",
+                category: "Remedial Law",
+                definition: "A sworn written statement wherein the complainant or witness declares withdrawal of charges or testimony against the accused. While it may be considered, it does not automatically result in case dismissal.",
+                source: "Rules of Court"
+            },
+            {
+                term: "Alibi",
+                category: "Criminal Law",
+                definition: "A defense that places the accused at a different location at the time the crime was committed, making it physically impossible for them to have committed the offense. Requires clear and convincing evidence.",
+                source: "Rules on Evidence"
+            },
+            {
+                term: "Амicus Curiae",
+                category: "Remedial Law",
+                definition: "Latin for 'friend of the court.' A person or organization who is not a party to a case but offers information or expertise to assist the court in deciding a matter before it.",
+                source: "Rules of Court"
+            },
+            {
+                term: "Bill of Rights",
+                category: "Constitutional Law",
+                definition: "Article III of the 1987 Philippine Constitution, which enumerates the fundamental civil and political rights of Filipino citizens, including due process, equal protection, and freedom of speech.",
+                source: "1987 Constitution, Art. III"
+            },
+            {
+                term: "Burden of Proof",
+                category: "Remedial Law",
+                definition: "The obligation of a party to present evidence to establish their claim or defense. In criminal cases, the prosecution bears the burden to prove guilt beyond reasonable doubt.",
+                source: "Rule 131, Rules of Court"
+            },
+            {
+                term: "Canon of Ethics",
+                category: "Legal Ethics",
+                definition: "The fundamental principles and rules that govern the professional conduct of lawyers in the Philippines, as prescribed in the Code of Professional Responsibility and other relevant laws.",
+                source: "Code of Professional Responsibility"
+            },
+            {
+                term: "Certiorari",
+                category: "Remedial Law",
+                definition: "A special civil action filed with a higher court to review acts of lower courts or tribunals committed with grave abuse of discretion amounting to lack or excess of jurisdiction.",
+                source: "Rule 65, Rules of Court"
+            },
+            {
+                term: "Circumstantial Evidence",
+                category: "Remedial Law",
+                definition: "Evidence that relies on inference to connect it to a conclusion of fact. To sustain conviction, there must be more than one circumstance, facts must be proven, and the combination must produce moral certainty.",
+                source: "Rule 133, Rules of Court"
+            },
+            {
+                term: "Continuing Legal Education (CLE)",
+                category: "Legal Ethics",
+                definition: "Mandatory continuing professional development program for lawyers requiring completion of specified credit hours in legal subjects to maintain license to practice law in the Philippines.",
+                source: "Bar Matter No. 850"
+            },
+            {
+                term: "Damnum Absque Injuria",
+                category: "Civil Law",
+                definition: "Latin for 'damage without injury.' Refers to loss or damage for which there is no legal remedy because no legal right was violated, even though actual harm occurred.",
+                source: "Principles of Civil Law"
+            },
+            {
+                term: "De Facto",
+                category: "Constitutional Law",
+                definition: "Latin for 'in fact.' Refers to something that exists in reality but may not be officially recognized or legally established, as opposed to de jure (by law).",
+                source: "Legal Maxims"
+            },
+            {
+                term: "Due Process",
+                category: "Constitutional Law",
+                definition: "The constitutional guarantee that no person shall be deprived of life, liberty, or property without due process of law. Includes substantive due process (validity of law) and procedural due process (fair hearing).",
+                source: "Art. III, Sec. 1, 1987 Constitution"
+            },
+            {
+                term: "Ex Parte",
+                category: "Remedial Law",
+                definition: "Latin for 'from one party.' Refers to legal proceedings conducted for the benefit of one party only, without notice to or presence of other parties.",
+                source: "Rules of Court"
+            },
+            {
+                term: "Estoppel",
+                category: "Civil Law",
+                definition: "A legal principle that prevents a person from denying or asserting anything contrary to what has been established by their previous actions, statements, or judicial determinations.",
+                source: "Art. 1431, Civil Code"
+            },
+            {
+                term: "Extrajudicial Confession",
+                category: "Criminal Law",
+                definition: "An admission of guilt made outside judicial proceedings. Under Philippine law, it is admissible only against the confessant and must be corroborated by evidence of corpus delicti.",
+                source: "Rule 133, Rules of Court"
+            },
+            {
+                term: "Habeas Corpus",
+                category: "Remedial Law",
+                definition: "A writ requiring a person under custody to be brought before the court to determine the legality of detention. A remedy available to any person deprived of liberty.",
+                source: "Rule 102, Rules of Court"
+            },
+            {
+                term: "In Flagrante Delicto",
+                category: "Criminal Law",
+                definition: "Latin for 'in blazing offense.' Refers to being caught in the act of committing a crime. One of the instances when warrantless arrest is valid under Philippine law.",
+                source: "Rule 113, Rules of Court"
+            },
+            {
+                term: "Jurisprudence",
+                category: "Constitutional Law",
+                definition: "The body of judicial decisions and interpretations by courts, particularly the Supreme Court, which serve as precedents and sources of law in the Philippine legal system.",
+                source: "Art. 8, Civil Code"
+            },
+            {
+                term: "Locus Criminis",
+                category: "Criminal Law",
+                definition: "Latin for 'place of the crime.' The location where a criminal offense was committed, which is significant for determining jurisdiction and venue.",
+                source: "Criminal Procedure"
+            },
+            {
+                term: "Mandatory Injunction",
+                category: "Remedial Law",
+                definition: "A court order requiring a party to perform a specific act or restore a previous state of affairs. Distinguishable from prohibitory injunction which restrains action.",
+                source: "Rule 58, Rules of Court"
+            },
+            {
+                term: "Mens Rea",
+                category: "Criminal Law",
+                definition: "Latin for 'guilty mind.' The mental state or criminal intent required for criminal liability. Together with actus reus, it forms the basis of criminal responsibility.",
+                source: "Revised Penal Code"
+            },
+            {
+                term: "Nolo Contendere",
+                category: "Criminal Law",
+                definition: "Latin for 'I do not wish to contest.' A plea where the accused does not admit guilt but accepts punishment. Not recognized in Philippine criminal procedure; only guilty or not guilty pleas are allowed.",
+                source: "Rules of Criminal Procedure"
+            },
+            {
+                term: "Obiter Dictum",
+                category: "Remedial Law",
+                definition: "A judge's expression of opinion on a point not essential to the decision. Unlike ratio decidendi, it is not binding as precedent but may have persuasive authority.",
+                source: "Legal Principles"
+            },
+            {
+                term: "Parens Patriae",
+                category: "Constitutional Law",
+                definition: "Latin for 'parent of the nation.' The inherent power and authority of the State to protect persons under legal disability and those unable to act for themselves.",
+                source: "Legal Doctrine"
+            },
+            {
+                term: "Presumption of Innocence",
+                category: "Criminal Law",
+                definition: "The constitutional right of every accused to be presumed innocent until proven guilty beyond reasonable doubt. The prosecution bears the burden of proving guilt.",
+                source: "Art. III, Sec. 14, 1987 Constitution"
+            },
+            {
+                term: "Quantum Meruit",
+                category: "Civil Law",
+                definition: "Latin for 'as much as deserved.' A principle allowing recovery of reasonable value of services rendered when no express contract exists or when contract is unenforceable.",
+                source: "Obligations and Contracts"
+            },
+            {
+                term: "Res Judicata",
+                category: "Remedial Law",
+                definition: "The principle that a final judgment on the merits by a competent court bars subsequent litigation between the same parties on the same subject matter.",
+                source: "Rule 39, Rules of Court"
+            },
+            {
+                term: "Right to Counsel",
+                category: "Constitutional Law",
+                definition: "The constitutional right of any person under investigation for a criminal offense to be assisted by competent and independent counsel, preferably of their choice.",
+                source: "Art. III, Sec. 12, 1987 Constitution"
+            },
+            {
+                term: "Stare Decisis",
+                category: "Constitutional Law",
+                definition: "Latin for 'to stand by decided cases.' The doctrine requiring courts to follow precedents established in prior decisions when the same legal issues arise.",
+                source: "Legal Doctrine"
+            },
+            {
+                term: "Subpoena Duces Tecum",
+                category: "Remedial Law",
+                definition: "A court order requiring a person to produce documents, records, or other evidence in their possession at a specified time and place.",
+                source: "Rule 21, Rules of Court"
+            },
+            {
+                term: "Ultra Vires",
+                category: "Civil Law",
+                definition: "Latin for 'beyond powers.' Refers to acts performed beyond the legal authority or powers granted to a person, corporation, or government entity.",
+                source: "Corporation Law"
+            },
+            {
+                term: "Venue",
+                category: "Remedial Law",
+                definition: "The place where an action is to be instituted and tried. Determined by rules of court and may be waived if not timely raised by the parties.",
+                source: "Rule 4, Rules of Court"
+            },
+            {
+                term: "Writ of Amparo",
+                category: "Remedial Law",
+                definition: "A remedy available to victims of extralegal killings and enforced disappearances, or threats thereof. Protects the right to life, liberty, and security.",
+                source: "A.M. No. 07-9-12-SC"
+            },
+            {
+                term: "Conspiracy",
+                category: "Criminal Law",
+                definition: "An agreement between two or more persons to commit a felony and decide to commit it. When two or more persons conspire, each is responsible for all acts of co-conspirators done in furtherance of the conspiracy.",
+                source: "Art. 8, Revised Penal Code"
+            },
+            {
+                term: "Proposal",
+                category: "Criminal Law",
+                definition: "Exists when a person who has decided to commit a felony proposes its execution to another person or persons. The proposal must be to commit treason, rebellion, insurrection, coup d'etat, or sedition to be punishable.",
+                source: "Art. 8, Revised Penal Code"
+            },
+            {
+                term: "Frustrated Felony",
+                category: "Criminal Law",
+                definition: "When the offender performs all acts of execution which would produce the felony as a consequence but which, nevertheless, do not produce it by reason of causes independent of the will of the perpetrator.",
+                source: "Art. 6, Revised Penal Code"
+            },
+            {
+                term: "Attempted Felony",
+                category: "Criminal Law",
+                definition: "When the offender commences the commission of a felony directly by overt acts but does not perform all acts of execution by reason of some cause or accident other than their own spontaneous desistance.",
+                source: "Art. 6, Revised Penal Code"
+            },
+            {
+                term: "Mitigating Circumstances",
+                category: "Criminal Law",
+                definition: "Circumstances that reduce the penalty for a crime without affecting its nature. Examples include lack of intent to commit so grave a wrong, voluntary surrender, passion or obfuscation, and illness diminishing will-power.",
+                source: "Art. 13, Revised Penal Code"
+            },
+            {
+                term: "Aggravating Circumstances",
+                category: "Criminal Law",
+                definition: "Circumstances that increase the penalty for a crime. May be generic (affecting penalty) or qualifying (changing the nature of the crime). Examples include treachery, evident premeditation, abuse of superior strength.",
+                source: "Art. 14, Revised Penal Code"
+            },
+            {
+                term: "Recidivism",
+                category: "Criminal Law",
+                definition: "A generic aggravating circumstance where the offender, at the time of trial for one crime, has been previously convicted by final judgment of another crime embraced in the same title of the Revised Penal Code.",
+                source: "Art. 14(9), Revised Penal Code"
+            },
+            {
+                term: "Reiteracion (Repetition)",
+                category: "Criminal Law",
+                definition: "An aggravating circumstance where the offender has been previously punished for an offense which the law attaches an equal or greater penalty, or for two or more crimes to which it attaches a lighter penalty.",
+                source: "Art. 14(10), Revised Penal Code"
+            },
+            {
+                term: "Habitual Delinquency",
+                category: "Criminal Law",
+                definition: "A special aggravating circumstance where a person, within ten years from last conviction or release, is found guilty of certain specified crimes (robbery, theft, estafa, falsification) for the third time or oftener.",
+                source: "Art. 62(5), Revised Penal Code"
+            },
+            {
+                term: "Probation",
+                category: "Criminal Law",
+                definition: "A disposition whereby a convicted defendant is released subject to conditions and supervision by a probation officer instead of serving a prison sentence. Not available to those sentenced to more than six years or who appealed their conviction.",
+                source: "Presidential Decree No. 968"
+            },
+            {
+                term: "Pardon",
+                category: "Criminal Law",
+                definition: "An act of grace from the President which exempts the individual from punishment. Absolute pardon extinguishes criminal liability; conditional pardon imposes conditions. Does not restore civil rights unless expressly stated.",
+                source: "Art. VII, Sec. 19, 1987 Constitution"
+            },
+            {
+                term: "Parole",
+                category: "Criminal Law",
+                definition: "The conditional release of a prisoner who has served the minimum period of their sentence, allowing them to serve the remainder outside prison under supervision. Violation may result in re-incarceration.",
+                source: "Indeterminate Sentence Law, Act No. 4103"
+            },
+            {
+                term: "Treachery (Alevosia)",
+                category: "Criminal Law",
+                definition: "A qualifying circumstance when the offender employs means, methods, or forms in the execution which tend directly and specially to ensure its execution without risk from any defense the victim might make.",
+                source: "Art. 14(16), Revised Penal Code"
+            },
+            {
+                term: "Evident Premeditation",
+                category: "Criminal Law",
+                definition: "An aggravating circumstance requiring proof that: (1) the time when the offender determined to commit the crime, (2) an act manifestly indicating adherence to determination, and (3) sufficient lapse of time for reflection.",
+                source: "Art. 14(13), Revised Penal Code"
+            },
+            {
+                term: "Abuse of Superior Strength",
+                category: "Criminal Law",
+                definition: "An aggravating circumstance when the offender purposely uses excessive force out of proportion to the means of defense available to the victim. Requires deliberate intent to take advantage of superiority.",
+                source: "Art. 14(15), Revised Penal Code"
+            },
+            {
+                term: "Corpus Delicti",
+                category: "Criminal Law",
+                definition: "Latin for 'body of the crime.' Refers to the fact that a crime has actually been committed. Composed of two elements: (1) proof of the occurrence of a certain event, and (2) someone's criminal responsibility for the act.",
+                source: "Rules on Criminal Evidence"
+            },
+            {
+                term: "Motive vs. Intent",
+                category: "Criminal Law",
+                definition: "Motive is the reason that impels a person to commit a crime; Intent is the determination to do a certain act. Motive is not an element of crime but may help establish guilt. Intent (criminal intent/mens rea) is generally required.",
+                source: "Revised Penal Code Principles"
+            },
+            {
+                term: "Felonies (Dolo)",
+                category: "Criminal Law",
+                definition: "Intentional felonies committed with deliberate intent (dolus). The offender has the intent to cause the injury or harm. Requires criminal intent and freedom of action on the part of the offender.",
+                source: "Art. 3, Revised Penal Code"
+            },
+            {
+                term: "Felonies (Culpa)",
+                category: "Criminal Law",
+                definition: "Culpable felonies resulting from negligence, imprudence, lack of foresight, or lack of skill. The offender does not intend the resulting harm but commits it through fault or carelessness.",
+                source: "Art. 3, Revised Penal Code"
+            },
+            {
+                term: "Dolo vs. Culpa",
+                category: "Criminal Law",
+                definition: "Dolo (deceit/malice) refers to intentional felonies with deliberate intent to cause harm. Culpa (fault) refers to culpable felonies from negligence or imprudence without intent to harm. Both require voluntary action.",
+                source: "Art. 3, Revised Penal Code"
+            },
+            {
+                term: "Void Contract",
+                category: "Civil Law",
+                definition: "A contract that produces no effect from the beginning and cannot be ratified. Examples include contracts contrary to law, morals, public policy, or those with impossible conditions. Action to declare nullity does not prescribe.",
+                source: "Art. 1409, Civil Code"
+            },
+            {
+                term: "Voidable Contract",
+                category: "Civil Law",
+                definition: "A contract binding unless annulled by a proper court action. Valid until set aside. Grounds include vitiated consent (fraud, mistake, violence, intimidation, undue influence) or incapacity of a party. May be ratified.",
+                source: "Art. 1390, Civil Code"
+            },
+            {
+                term: "Rescissible Contract",
+                category: "Civil Law",
+                definition: "A valid contract that may be rescinded when it causes lesion or economic prejudice to a party or creditors. Examples include contracts entered into in fraud of creditors or those involving guardians and wards.",
+                source: "Art. 1381, Civil Code"
+            },
+            {
+                term: "Unenforceable Contract",
+                category: "Civil Law",
+                definition: "A contract that cannot be sued upon unless ratified. Includes unauthorized contracts, contracts that do not comply with Statute of Frauds (must be in writing), and contracts entered into in the name of another without authority.",
+                source: "Art. 1403, Civil Code"
+            },
+            {
+                term: "Solidary Obligation",
+                category: "Civil Law",
+                definition: "Each debtor is liable for the entire obligation, and each creditor may demand full payment. Payment by one debtor extinguishes the entire obligation. Requires express agreement or legal provision.",
+                source: "Art. 1207, Civil Code"
+            },
+            {
+                term: "Joint Obligation",
+                category: "Civil Law",
+                definition: "The default type of obligation where each debtor is liable only for their proportionate share, and each creditor can demand only their share. The obligation is divided among debtors or creditors.",
+                source: "Art. 1208, Civil Code"
+            },
+            {
+                term: "Usufruct",
+                category: "Civil Law",
+                definition: "The right to enjoy the property of another with the obligation to preserve its form and substance. The usufructuary has possession and use but naked ownership remains with the owner. May be constituted by law, will, or contract.",
+                source: "Art. 562, Civil Code"
+            },
+            {
+                term: "Easement (Servitude)",
+                category: "Civil Law",
+                definition: "A real right on another's property, constituted to benefit another person or property. The servient estate bears the burden while the dominant estate benefits. May be continuous/discontinuous, apparent/non-apparent.",
+                source: "Art. 613, Civil Code"
+            },
+            {
+                term: "Mortgage",
+                category: "Civil Law",
+                definition: "A real right constituted on immovable property or alienable real rights to secure payment of a principal obligation. The creditor has the right to foreclose if the debt is not paid. Does not transfer ownership.",
+                source: "Art. 2085, Civil Code"
+            },
+            {
+                term: "Legitime",
+                category: "Civil Law",
+                definition: "The part of the testator's estate that the law reserves for compulsory heirs and cannot be disposed of by will. Computed from the net hereditary estate. Impairment of legitime gives right to reduction of excessive donations.",
+                source: "Art. 886, Civil Code"
+            },
+            {
+                term: "Compulsory Heirs",
+                category: "Civil Law",
+                definition: "Heirs who cannot be deprived of their legitime except in cases of disinheritance or unworthiness. Include legitimate children/descendants, legitimate parents/ascendants, illegitimate children, and surviving spouse.",
+                source: "Art. 887, Civil Code"
+            },
+            {
+                term: "Donation Inter Vivos",
+                category: "Civil Law",
+                definition: "A donation that takes effect during the lifetime of the donor. Requires acceptance by the donee during donor's lifetime. Subject to formal requirements and may be revoked for ingratitude or non-compliance with conditions.",
+                source: "Art. 725, Civil Code"
+            },
+            {
+                term: "Donation Mortis Causa",
+                category: "Civil Law",
+                definition: "A donation that takes effect upon the death of the donor. Has characteristics of a will and must comply with formalities of testamentary dispositions. Revocable at will by the donor.",
+                source: "Art. 728, Civil Code"
+            },
+            {
+                term: "Prescription (Acquisitive)",
+                category: "Civil Law",
+                definition: "A mode of acquiring ownership through continuous possession for the period required by law. Ordinary acquisitive prescription requires possession in good faith and with just title; extraordinary requires longer period.",
+                source: "Art. 1117, Civil Code"
+            },
+            {
+                term: "Prescription (Extinctive)",
+                category: "Civil Law",
+                definition: "The loss or extinguishment of a right or action through lapse of time. Different periods apply to different actions. Serves to provide certainty and stability in legal relations.",
+                source: "Art. 1139, Civil Code"
+            },
+            {
+                term: "Good Faith",
+                category: "Civil Law",
+                definition: "Honesty of intention and freedom from knowledge of circumstances which ought to put a person on inquiry. A possessor in good faith is one who is not aware of any flaw in their title or mode of acquisition.",
+                source: "Art. 526, Civil Code"
+            },
+            {
+                term: "Bad Faith",
+                category: "Civil Law",
+                definition: "Implies conscious awareness of defect or lack of title. A possessor in bad faith is liable for deterioration, loss of fruits, and damages. Possession in bad faith does not ripen into ownership through prescription.",
+                source: "Art. 528, Civil Code"
+            },
+            {
+                term: "Obligations",
+                category: "Civil Law",
+                definition: "A juridical necessity to give, to do, or not to do. Consists of active subject (creditor/obligee), passive subject (debtor/obligor), object or prestation, and juridical or legal tie (vinculum juris).",
+                source: "Art. 1156, Civil Code"
+            },
+            {
+                term: "Prestation",
+                category: "Civil Law",
+                definition: "The object of an obligation - what the debtor is bound to give, to do, or not to do. Must be lawful, possible, determinate or determinable, and have pecuniary value.",
+                source: "Art. 1163, Civil Code"
+            },
+            {
+                term: "Novation",
+                category: "Civil Law",
+                definition: "The extinguishment of an obligation by the substitution or change of the obligation by a subsequent one. May be objective (change of object/principal conditions) or subjective (change of parties).",
+                source: "Art. 1291, Civil Code"
+            },
+            {
+                term: "Compensation (Legal)",
+                category: "Civil Law",
+                definition: "Mode of extinguishing obligations when two persons are creditors and debtors of each other. Requirements: both debts must be due, liquidated, demandable, and of the same kind (usually money).",
+                source: "Art. 1278, Civil Code"
+            },
+            {
+                term: "Confusion (Merger)",
+                category: "Civil Law",
+                definition: "Extinguishment of obligation when the characters of creditor and debtor are merged in the same person. Example: creditor inherits from debtor or vice versa, causing the obligation to be extinguished.",
+                source: "Art. 1275, Civil Code"
+            },
+            {
+                term: "Condonation (Remission)",
+                category: "Civil Law",
+                definition: "The gratuitous abandonment by the creditor of their right against the debtor. A form of donation and must comply with donation formalities. Requires acceptance by the debtor.",
+                source: "Art. 1270, Civil Code"
+            },
+            {
+                term: "Fortuitous Event",
+                category: "Civil Law",
+                definition: "An event that could not be foreseen or which, though foreseen, was inevitable. Generally exempts obligor from liability unless law/stipulation provides otherwise or obligor is in delay.",
+                source: "Art. 1174, Civil Code"
+            },
+            {
+                term: "Potestative Condition",
+                category: "Civil Law",
+                definition: "A condition that depends upon the will of one of the contracting parties. If suspensive and depends solely on debtor's will, the obligation is void. If resolutory, it is valid.",
+                source: "Art. 1182, Civil Code"
+            },
+            {
+                term: "Natural Obligations",
+                category: "Civil Law",
+                definition: "Obligations not enforceable by court action but based on equity and natural law. If voluntarily paid, the debtor cannot recover payment. Examples include debts barred by prescription.",
+                source: "Art. 1423, Civil Code"
+            },
+            {
+                term: "Subsidiary Action (Accion Subrogatoria)",
+                category: "Civil Law",
+                definition: "The right of a creditor to exercise all rights and bring all actions of the debtor for the same purpose, except those inherently personal. Used when debtor refuses or is unable to collect.",
+                source: "Art. 1177, Civil Code"
+            },
+            {
+                term: "Rescissory Action (Accion Pauliana)",
+                category: "Civil Law",
+                definition: "The right of creditors to impugn acts of the debtor in fraud of their rights. Also called action to rescind contracts in fraud of creditors. Must prove fraud and creditor must have no other legal remedy.",
+                source: "Art. 1177, Civil Code"
+            },
+            {
+                term: "Lease",
+                category: "Civil Law",
+                definition: "A contract where one party binds themselves to give another the enjoyment or use of a thing for a price certain and for a period. Lessor retains ownership while lessee has temporary use.",
+                source: "Art. 1643, Civil Code"
+            },
+            {
+                term: "Agency",
+                category: "Civil Law",
+                definition: "A contract whereby a person binds themselves to render some service or to do something for another with the consent of the latter. Agent acts in representation and for the account of the principal.",
+                source: "Art. 1868, Civil Code"
+            },
+            {
+                term: "Mandamus",
+                category: "Remedial Law",
+                definition: "A special civil action to compel the performance of a ministerial duty by any tribunal, corporation, board, officer, or person unlawfully neglecting the performance of an act which the law specifically enjoins.",
+                source: "Rule 65, Rules of Court"
+            },
+            {
+                term: "Prohibition",
+                category: "Remedial Law",
+                definition: "A special civil action seeking to prevent a tribunal, corporation, board, officer, or person from proceeding in an action without or in excess of jurisdiction, or with grave abuse of discretion.",
+                source: "Rule 65, Rules of Court"
+            },
+            {
+                term: "Quo Warranto",
+                category: "Remedial Law",
+                definition: "A special civil action to determine a person's right to a public office or position, or to inquire by what authority one holds a franchise or corporate right. Filed by the Solicitor General or a private person.",
+                source: "Rule 66, Rules of Court"
+            },
+            {
+                term: "Preliminary Injunction",
+                category: "Remedial Law",
+                definition: "A provisional remedy issued after notice and hearing to prevent threatened or continuous irreparable injury before judgment. Requires clear legal right, urgent necessity, and inadequacy of pecuniary compensation.",
+                source: "Rule 58, Rules of Court"
+            },
+            {
+                term: "Temporary Restraining Order (TRO)",
+                category: "Remedial Law",
+                definition: "An order issued without notice to prevent serious or irreparable injury before hearing on preliminary injunction. Effective for limited period (20 days max), extendable once for same period.",
+                source: "Rule 58, Rules of Court"
+            },
+            {
+                term: "Motion for Reconsideration",
+                category: "Remedial Law",
+                definition: "A motion filed to ask the court to reconsider and reverse its judgment or final order. Must point out specifically errors of law or fact. Only one motion for reconsideration is allowed.",
+                source: "Rule 37, Rules of Court"
+            },
+            {
+                term: "Motion for New Trial",
+                category: "Remedial Law",
+                definition: "A motion to set aside judgment and grant a new trial based on fraud, accident, mistake, excusable negligence, or newly discovered evidence which could not have been discovered before with reasonable diligence.",
+                source: "Rule 37, Rules of Court"
+            },
+            {
+                term: "Summary Judgment",
+                category: "Remedial Law",
+                definition: "A judgment rendered when pleadings, depositions, and admissions show there is no genuine issue as to any material fact and the moving party is entitled to judgment as a matter of law. Avoids unnecessary trial.",
+                source: "Rule 35, Rules of Court"
+            },
+            {
+                term: "Default Judgment",
+                category: "Remedial Law",
+                definition: "A judgment rendered against a defending party who fails to file an answer within the reglementary period. The court receives plaintiff's evidence ex parte and renders judgment based on relief prayed for.",
+                source: "Rule 9, Rules of Court"
+            },
+            {
+                term: "Joinder of Parties",
+                category: "Remedial Law",
+                definition: "The uniting of two or more persons as co-plaintiffs or co-defendants in one action. Permissive joinder allowed when right to relief arises from same transaction and common questions of law/fact exist.",
+                source: "Rule 3, Rules of Court"
+            },
+            {
+                term: "Joinder of Causes of Action",
+                category: "Remedial Law",
+                definition: "A party may join as many causes of action as they have against an opposing party in one complaint, provided jurisdiction requirements are met and joinder will not violate rules on venue and jurisdiction.",
+                source: "Rule 2, Rules of Court"
+            },
+            {
+                term: "Jurisdiction",
+                category: "Remedial Law",
+                definition: "The power and authority of a court to hear, try, and decide a case. Includes jurisdiction over subject matter, parties, issues, and res. Conferred by law and cannot be waived or stipulated upon by parties.",
+                source: "Rules of Court"
+            },
+            {
+                term: "Venue",
+                category: "Remedial Law",
+                definition: "The place where an action is to be instituted and tried. Determined by rules of court and may be waived if not timely raised by the parties.",
+                source: "Rule 4, Rules of Court"
+            },
+            {
+                term: "Forum Shopping",
+                category: "Remedial Law",
+                definition: "The act of filing multiple suits involving same parties, rights, and reliefs in different courts/tribunals to increase chances of favorable decision. Prohibited and sanctionable; requires certification against forum shopping.",
+                source: "Rule 7, Rules of Court"
+            },
+            {
+                term: "Dismissal Without Prejudice",
+                category: "Remedial Law",
+                definition: "Dismissal that does not bar the refiling of the same action. Plaintiff may commence a new action based on the same claim. Does not operate as an adjudication on the merits.",
+                source: "Rule 17, Rules of Court"
+            },
+            {
+                term: "Dismissal With Prejudice",
+                category: "Remedial Law",
+                definition: "Dismissal that bars the refiling of the same action and operates as an adjudication on the merits, equivalent to res judicata. Prevents plaintiff from bringing another suit on the same claim.",
+                source: "Rule 17, Rules of Court"
+            },
+            {
+                term: "Demurrer to Evidence",
+                category: "Remedial Law",
+                definition: "A motion to dismiss filed after prosecution rests its case, on ground that evidence is insufficient to prove the charge. If granted, dismissal is with prejudice (acquittal); if denied with leave, defendant may present evidence.",
+                source: "Rule 119, Rules of Criminal Procedure"
+            },
+            {
+                term: "Bill of Particulars",
+                category: "Remedial Law",
+                definition: "A more definite statement of any matter in the pleading which is not averred with sufficient definiteness to enable the adverse party to properly prepare responsive pleading or to prepare for trial.",
+                source: "Rule 12, Rules of Court"
+            },
+            {
+                term: "Intervention",
+                category: "Remedial Law",
+                definition: "A procedural device allowing a person not originally a party to become a party in a pending action when they have legal interest in the matter in litigation or in the success of either party.",
+                source: "Rule 19, Rules of Court"
+            },
+            {
+                term: "Attachment",
+                category: "Remedial Law",
+                definition: "A provisional remedy by which property of defendant is taken into custody of law as security for satisfaction of any judgment. Available in specific cases like fraud, defendant about to depart, or action on property.",
+                source: "Rule 57, Rules of Court"
+            },
+            {
+                term: "Replevin",
+                category: "Remedial Law",
+                definition: "An action to recover possession of personal property wrongfully detained by another. Plaintiff may obtain possession pending final judgment by posting bond. Also called action for recovery of possession.",
+                source: "Rule 60, Rules of Court"
+            },
+            {
+                term: "Garnishment",
+                category: "Remedial Law",
+                definition: "A species of attachment for reaching credits/debts belonging to judgment debtor and owing to them from a third person (garnishee). Serves to subject debtor's property to execution.",
+                source: "Rule 39, Rules of Court"
+            },
+            {
+                term: "Police Power",
+                category: "Constitutional Law",
+                definition: "The inherent power of the State to enact laws to promote public health, safety, morals, and general welfare. Most pervasive and least limitable of State powers. Subject to constitutional limitations and reasonableness test.",
+                source: "Constitutional Law Principles"
+            },
+            {
+                term: "Eminent Domain",
+                category: "Constitutional Law",
+                definition: "The power of the State to take private property for public use upon payment of just compensation. Requisites: taking for public use, payment of just compensation, and observance of due process.",
+                source: "Art. III, Sec. 9, 1987 Constitution"
+            },
+            {
+                term: "Taxation Power",
+                category: "Constitutional Law",
+                definition: "The inherent power of the State to levy taxes to raise revenue for public purposes. Subject to constitutional limitations including uniformity, equality, progressivity, and non-impairment of contracts.",
+                source: "Art. VI, Sec. 28, 1987 Constitution"
+            },
+            {
+                term: "Separation of Powers",
+                category: "Constitutional Law",
+                definition: "The division of government into three co-equal branches: Legislative (makes laws), Executive (implements laws), and Judicial (interprets laws). Each branch is supreme within its sphere and independent of the others.",
+                source: "Art. VI, VII, VIII, 1987 Constitution"
+            },
+            {
+                term: "Checks and Balances",
+                category: "Constitutional Law",
+                definition: "The system where each branch of government can limit the powers of the other branches to prevent abuse and maintain balance. Examples include veto power, judicial review, and congressional oversight.",
+                source: "1987 Constitution"
+            },
+            {
+                term: "Judicial Review",
+                category: "Constitutional Law",
+                definition: "The power of courts to declare laws, executive acts, or government actions unconstitutional. The Supreme Court has the final authority to determine whether governmental acts violate the Constitution.",
+                source: "Art. VIII, Sec. 1, 1987 Constitution"
+            },
+            {
+                term: "Political Question",
+                category: "Constitutional Law",
+                definition: "Issues involving the wisdom of policies or requiring political rather than legal solutions, not subject to judicial review. Courts decline jurisdiction when Constitution commits decision to another branch.",
+                source: "Constitutional Doctrine"
+            },
+            {
+                term: "Bill of Attainder",
+                category: "Constitutional Law",
+                definition: "A legislative act that inflicts punishment without judicial trial. Prohibited by the Constitution as it violates separation of powers and denies due process. Legislature cannot usurp judicial functions.",
+                source: "Art. III, Sec. 22, 1987 Constitution"
+            },
+            {
+                term: "Ex Post Facto Law",
+                category: "Constitutional Law",
+                definition: "A law that retroactively criminalizes an act, aggravates a crime, or imposes greater punishment than when committed. Prohibited by Constitution to protect against arbitrary criminal legislation.",
+                source: "Art. III, Sec. 22, 1987 Constitution"
+            },
+            {
+                term: "Equal Protection Clause",
+                category: "Constitutional Law",
+                definition: "Constitutional guarantee that no person shall be denied equal protection of laws. Requires that all persons similarly situated be treated alike. Permits classification if reasonable and germane to lawful purpose.",
+                source: "Art. III, Sec. 1, 1987 Constitution"
+            },
+            {
+                term: "Impeachment",
+                category: "Constitutional Law",
+                definition: "The constitutionally prescribed method to remove President, Vice-President, Supreme Court Justices, Ombudsman, and Constitutional Commission members. Grounds: culpable violation of Constitution, treason, bribery, graft, other high crimes, betrayal of public trust.",
+                source: "Art. XI, Sec. 2-3, 1987 Constitution"
+            },
+            {
+                term: "Hierarchy of Courts",
+                category: "Constitutional Law",
+                definition: "The doctrine requiring cases to be filed first in lower courts rather than directly in higher courts, unless exceptional circumstances exist. Ensures orderly administration of justice and prevents docket congestion.",
+                source: "Jurisprudential Doctrine"
+            },
+            {
+                term: "Doctrine of Constitutional Supremacy",
+                category: "Constitutional Law",
+                definition: "The Constitution is the supreme law of the land. All laws, executive acts, and judicial decisions must conform to the Constitution. Any law or act contrary to Constitution is null and void.",
+                source: "Art. VII, Sec. 3, 1987 Constitution"
+            },
+            {
+                term: "Non-Delegation of Powers",
+                category: "Constitutional Law",
+                definition: "The principle that powers conferred on one branch cannot be delegated to another. Exceptions: delegation to administrative bodies (with sufficient standards), to local governments, and in times of emergency.",
+                source: "Constitutional Doctrine"
+            },
+            {
+                term: "Void-for-Vagueness Doctrine",
+                category: "Constitutional Law",
+                definition: "A law is void if it is so vague that persons of ordinary intelligence must guess at its meaning. Violates due process by failing to give fair notice and allowing arbitrary enforcement.",
+                source: "Due Process Clause Application"
+            },
+            {
+                term: "Overbreadth Doctrine",
+                category: "Constitutional Law",
+                definition: "A law is unconstitutionally overbroad if it sweeps within its coverage protected speech along with unprotected speech, thereby chilling the exercise of freedom of expression.",
+                source: "Free Speech Jurisprudence"
+            },
+            {
+                term: "Clear and Present Danger Test",
+                category: "Constitutional Law",
+                definition: "Test for determining validity of restrictions on speech: whether words used create clear and present danger of substantive evil that the State has right to prevent. Balances free speech with public safety.",
+                source: "Free Speech Doctrine"
+            },
+            {
+                term: "Conflict of Interest",
+                category: "Legal Ethics",
+                definition: "Exists when a lawyer represents conflicting interests or when representation of one client will be adversely affected by representation of another. Prohibited unless clients give informed written consent.",
+                source: "Rule 15.03, Code of Professional Responsibility"
+            },
+            {
+                term: "Attorney-Client Privilege",
+                category: "Legal Ethics",
+                definition: "Confidential communications between attorney and client for the purpose of seeking legal advice are privileged and cannot be disclosed without client's consent. Survives even after termination of relationship.",
+                source: "Rule 21.01, Code of Professional Responsibility"
+            },
+            {
+                term: "Withdrawal from Case",
+                category: "Legal Ethics",
+                definition: "A lawyer may withdraw from representation with client's written consent or for justifiable cause with court approval. Must not prejudice client and must ensure orderly transfer of case to successor counsel.",
+                source: "Rule 22.01, Code of Professional Responsibility"
+            },
+            {
+                term: "Contempt of Court",
+                category: "Legal Ethics",
+                definition: "Disobedience or disrespect to a court's authority. May be direct (committed in presence of court) or indirect (committed outside court). Lawyers may be cited for contempt for improper conduct in court.",
+                source: "Rule 71, Rules of Court"
+            },
+            {
+                term: "Disbarment",
+                category: "Legal Ethics",
+                definition: "The most severe disciplinary sanction removing lawyer's name from roll of attorneys and prohibiting practice of law. Reserved for most serious ethical violations. May apply for reinstatement after 5 years.",
+                source: "Rule 139-B, Rules of Court"
+            },
+            {
+                term: "Suspension from Practice",
+                category: "Legal Ethics",
+                definition: "Temporary prohibition from practicing law for a specified period due to ethical violations. Less severe than disbarment. Lawyer may resume practice after serving suspension period.",
+                source: "Rule 139-B, Rules of Court"
+            },
+            {
+                term: "Solicitation of Clients",
+                category: "Legal Ethics",
+                definition: "Actively seeking out clients through direct personal contact or intermediaries is prohibited. Lawyers must not use runners or touters. Violates professional dignity and breeds ambulance chasing.",
+                source: "Rule 2.03, Code of Professional Responsibility"
+            },
+            {
+                term: "Advertising Rules",
+                category: "Legal Ethics",
+                definition: "Lawyers may advertise legal services but advertisements must be dignified, truthful, and not misleading. Cannot guarantee results or compare services with other lawyers. Must avoid self-laudation.",
+                source: "Rule 2.03-3.01, Code of Professional Responsibility"
+            },
+            {
+                term: "Duty of Competence",
+                category: "Legal Ethics",
+                definition: "A lawyer must possess the necessary learning, skill, and preparation to handle a client's case competently. Must decline employment if not competent unless can acquire necessary competence or associate with competent counsel.",
+                source: "Canon 18, Code of Professional Responsibility"
+            },
+            {
+                term: "Duty of Fidelity",
+                category: "Legal Ethics",
+                definition: "A lawyer owes entire devotion to client's interest, warmth and zeal in maintenance and defense of rights, and exertion of utmost learning and ability. Must serve client with competence and diligence.",
+                source: "Canon 17, Code of Professional Responsibility"
+            },
+            {
+                term: "Notarial Practice",
+                category: "Legal Ethics",
+                definition: "A lawyer commissioned as notary public must observe rules on notarial practice. Cannot notarize documents if interested party or if parties not personally appearing. Violations may result in disciplinary action.",
+                source: "2004 Rules on Notarial Practice"
+            },
+            {
+                term: "Champerty and Maintenance",
+                category: "Legal Ethics",
+                definition: "Champerty is agreement where lawyer finances litigation in return for share of proceeds. Maintenance is intermeddling in another's litigation. Both are prohibited as contrary to public policy.",
+                source: "Legal Ethics Principles"
+            },
+            {
+                term: "Appearance of Impropriety",
+                category: "Legal Ethics",
+                definition: "Lawyers must avoid even the appearance of impropriety. Conduct creating impression of unethical behavior may be sanctioned even if no actual violation occurred. Standard of professional conduct.",
+                source: "Code of Professional Responsibility"
+            },
+            {
+                term: "Corporation",
+                category: "Commercial Law",
+                definition: "An artificial being created by law, having rights of succession and powers/attributes expressly authorized by law. Has juridical personality separate from stockholders. Managed by board of directors.",
+                source: "Sec. 2, Revised Corporation Code"
+            },
+            {
+                term: "Partnership",
+                category: "Commercial Law",
+                definition: "A contract where two or more persons bind themselves to contribute money, property, or industry to a common fund with intention of dividing profits. Partners are unlimitedly liable unless limited partnership.",
+                source: "Art. 1767, Civil Code"
+            },
+            {
+                term: "Negotiable Instrument",
+                category: "Commercial Law",
+                definition: "A written contract for payment of money which complies with requisites: signed by maker/drawer, contains unconditional promise/order, payable to order or bearer, payable on demand or determinable time, sum certain in money.",
+                source: "Sec. 1, Negotiable Instruments Law"
+            },
+            {
+                term: "Holder in Due Course",
+                category: "Commercial Law",
+                definition: "A holder who took negotiable instrument for value, in good faith, without notice of infirmity/defect. Holds instrument free from defenses available to prior parties among themselves.享s superior rights.",
+                source: "Sec. 52, Negotiable Instruments Law"
+            },
+            {
+                term: "Ultra Vires Acts",
+                category: "Commercial Law",
+                definition: "Corporate acts beyond powers conferred by law or articles of incorporation. May render acts void or voidable. Stockholders or State may question such acts. Directors/officers may be held personally liable.",
+                source: "Corporation Law"
+            },
+            {
+                term: "Piercing the Corporate Veil",
+                category: "Commercial Law",
+                definition: "Doctrine allowing courts to disregard corporate fiction and hold stockholders/officers personally liable when corporation used to defeat public convenience, justify wrong, protect fraud, or defend crime.",
+                source: "Jurisprudential Doctrine"
+            },
+            {
+                term: "Security of Tenure",
+                category: "Labor Law",
+                definition: "Constitutional right of employees to protection against arbitrary or unjust dismissal. Employees can only be terminated for just or authorized causes and only after observance of procedural due process.",
+                source: "Art. XIII, Sec. 3, 1987 Constitution"
+            },
+            {
+                term: "Just Causes for Termination",
+                category: "Labor Law",
+                definition: "Employee-related grounds for dismissal: serious misconduct, willful disobedience, gross/habitual neglect of duty, fraud/breach of trust, commission of crime, analogous causes. No separation pay generally required.",
+                source: "Art. 297, Labor Code"
+            },
+            {
+                term: "Authorized Causes for Termination",
+                category: "Labor Law",
+                definition: "Employer-initiated grounds not due to employee fault: installation of labor-saving devices, redundancy, retrenchment, closure/cessation of business, disease. Requires separation pay and notice to DOLE.",
+                source: "Art. 298-299, Labor Code"
+            },
+            {
+                term: "Due Process in Termination",
+                category: "Labor Law",
+                definition: "Two-notice rule: (1) notice to explain specifying grounds for dismissal, (2) hearing/opportunity to be heard, (3) notice of decision. Violation results in payment of nominal damages even if dismissal for just cause.",
+                source: "Book VI, Labor Code"
+            },
+            {
+                term: "Illegal Dismissal",
+                category: "Labor Law",
+                definition: "Termination without just/authorized cause or without observance of due process. Remedy is reinstatement without loss of seniority rights plus full backwages. If reinstatement not feasible, separation pay awarded.",
+                source: "Art. 294, Labor Code"
+            },
+            {
+                term: "Progressive Taxation",
+                category: "Taxation",
+                definition: "Tax system where tax rate increases as taxable base/income increases. Higher income earners pay higher percentage. Constitutional requirement that Congress shall evolve a progressive system of taxation.",
+                source: "Art. VI, Sec. 28(1), 1987 Constitution"
+            },
+            {
+                term: "Tax Exemption",
+                category: "Taxation",
+                definition: "Grant of immunity from tax obligation. May be constitutional (charitable institutions, churches, non-profit educational institutions) or statutory. Strictly construed against taxpayer claiming exemption.",
+                source: "Art. VI, Sec. 28(3), 1987 Constitution"
+            },
+            {
+                term: "Taxpayer's Suit",
+                category: "Taxation",
+                definition: "Action by taxpayer to question validity of governmental acts involving expenditure of public funds. Requires showing that tax money is being illegally disbursed and that petitioner will sustain direct injury.",
+                source: "Constitutional Law Doctrine"
+            },
+            {
+                term: "Tax Amnesty",
+                category: "Taxation",
+                definition: "General pardon to taxpayers who want to start clean. Partakes of absolute waiver by government of its right to collect taxes and impose penalties. Requires voluntary disclosure and payment.",
+                source: "National Internal Revenue Code"
+            },
+            {
+                term: "Compromise (Tax)",
+                category: "Taxation",
+                definition: "Agreement between taxpayer and government for settlement of tax liability for less than amount assessed. Available in specific cases like doubt as to validity of assessment or financial incapacity of taxpayer.",
+                source: "Sec. 204, National Internal Revenue Code"
+            }
+        ];
+
+        let currentCategory = 'all';
+        let currentSearch = '';
+
+        function renderTerms() {
+            const list = document.getElementById('dictionaryList');
+            let filtered = legalTerms;
+
+            if (currentCategory !== 'all') {
+                filtered = filtered.filter(t => t.category === currentCategory);
+            }
+
+            if (currentSearch) {
+                filtered = filtered.filter(t => 
+                    t.term.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    t.definition.toLowerCase().includes(currentSearch.toLowerCase())
+                );
+            }
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="no-results">No terms found. Try adjusting your search or filter.</div>';
+                document.getElementById('stats').textContent = 'No results';
+                return;
+            }
+
+            list.innerHTML = filtered.map(term => `
+                <div class="term-item" onclick="toggleTerm(this)">
+                    <div class="term-category">${term.category}</div>
+                    <div class="term-title">
+                        ${term.term}
+                        <span class="expand-icon">▼</span>
+                    </div>
+                    <div class="term-definition">
+                        ${term.definition}
+                        <div class="term-source">Source: ${term.source}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('stats').textContent = `Showing ${filtered.length} of ${legalTerms.length} terms`;
+        }
+
+        function toggleTerm(el) {
+            el.classList.toggle('expanded');
+            const icon = el.querySelector('.expand-icon');
+            icon.textContent = el.classList.contains('expanded') ? '▲' : '▼';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderTerms();
+        });
+
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentCategory = this.dataset.category;
+                renderTerms();
+            });
+        });
+
+        renderTerms();
+    </script>
+</body>
+</html>
